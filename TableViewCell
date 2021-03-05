@@ -1,0 +1,234 @@
+import UIKit
+import SnapKit
+import Foundation
+
+protocol TestCellDelegate {
+    func testCell(_ cell: CommentCell, shouldChange rowHeight: CGFloat)
+}
+
+class CommentCell: UITableViewCell {
+    
+    var delegate: TestCellDelegate?
+    var isExpanded: Bool = false
+    var labelHeightConstraint: Constraint?
+    var isShowMoreText: Bool = false {
+        didSet {
+            self.shouldShowMoreText()
+        }
+    }
+    
+    //
+    let baseView = UIView()
+    
+    let commentwriterprofileImage: UIImageView = {
+        let mentoprofileImage = UIImage(named: "img_main_comment_profile.png")!
+        
+        let imgView = UIImageView()
+        imgView.layer.borderColor = UIColor.gray.cgColor
+        imgView.layer.borderWidth = 1.0
+        imgView.image = mentoprofileImage
+        imgView.clipsToBounds = true
+        return imgView
+    }()
+    
+    let commentwriternameLabel : UILabel = {
+        let lbl = UILabel()
+        lbl.textColor = UIColor.black
+        lbl.text = "서지혜"
+        lbl.font = UIFont.systemFont(ofSize: 15)
+        //lbl.font = UIFont.boldSystemFont(ofSize: 16)
+        lbl.textAlignment = .left
+        return lbl
+    }()
+    
+    lazy var commentcontentLabel : UILabel = {
+        let lbl = UILabel()
+        lbl.textColor = UIColor.black
+        //lbl.text = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest"
+        //lbl.text = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest"
+        lbl.text = "H.263 has never been widely used on the web. Variations on H.263 have been used as the basis for other proprietary formats, such as Flash video or the Sorenson codec. However, no major browser has ever included H.263 support by default. Certain media plugins have enabled support for H.263 media."
+        lbl.font = UIFont.systemFont(ofSize: 13)
+        //lbl.font = UIFont.boldSystemFont(ofSize: 16)
+        lbl.textAlignment = .left
+        lbl.numberOfLines = 0
+        lbl.lineBreakMode = .byWordWrapping
+        lbl.minimumScaleFactor = 0.8
+        lbl.adjustsFontSizeToFitWidth = true
+        lbl.contentMode = .scaleToFill
+        return lbl
+    }()
+    
+    lazy var buttonMore: UIButton = {
+        let button = UIButton()
+        button.setTitle("더보기..", for: .normal)
+        button.backgroundColor = UIColor(red: 62/255, green: 202/255, blue: 192/255, alpha: 1.0)
+        button.setTitleColor(UIColor.white, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        button.addTarget(self, action: #selector(self.buttonMoreTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    lazy var repleshowButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("답글보기", for: .normal)
+        button.backgroundColor = UIColor(red: 62/255, green: 202/255, blue: 192/255, alpha: 1.0)
+        button.setTitleColor(UIColor.white, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 13)
+        //button.addTarget(self, action: #selector(self.buttonMoreTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    lazy var likeButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "img_main_like_main_on"), for: .normal)
+        button.setImage(UIImage(named: "img_main_like_main_on"), for: .selected)
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.gray.cgColor
+        return button
+    }()
+    
+    
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setupUI()
+    }
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupUI()
+    }
+    
+    
+}
+
+
+extension CommentCell {
+    func setupUI() {
+        
+        
+        self.contentView.addSubview(baseView)
+        baseView.snp.makeConstraints{ (make) in
+            make.top.bottom.leading.trailing.equalTo(self.contentView)
+        }
+        
+        
+        //self.contentView.addSubview(commentwriterprofileImage)
+        self.baseView.addSubview(commentwriterprofileImage)
+        commentwriterprofileImage.snp.makeConstraints{ (make) in
+            make.width.height.equalTo(48)
+            make.leading.equalTo(10)
+            make.top.equalTo(10)
+        }
+        
+        //self.contentView.addSubview(commentwriternameLabel)
+        self.baseView.addSubview(commentwriternameLabel)
+        commentwriternameLabel.snp.makeConstraints{ (make) in
+            make.leading.equalTo(commentwriterprofileImage.snp.trailing).offset(10)
+            make.top.equalTo(10)
+        }
+        
+        
+        
+        
+        
+        /*self.contentView.addSubview(commentcontentLabel)
+        commentcontentLabel.snp.makeConstraints{ (make) in
+            make.top.equalTo(commentwriternameLabel.snp.bottom).offset(5)
+            make.leading.equalTo(commentwriterprofileImage.snp.trailing).offset(10)
+            make.trailing.equalTo(-40)
+        }*/
+        self.baseView.addSubview(commentcontentLabel)
+        commentcontentLabel.snp.makeConstraints{ (make) in
+            make.leading.equalTo(commentwriterprofileImage.snp.trailing).offset(10)
+            make.trailing.equalTo(-40)
+            make.top.equalTo(self.baseView).offset(20)
+            self.labelHeightConstraint = make.height.equalTo(50).constraint
+        }
+        self.labelHeightConstraint?.activate()
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        /*self.contentView.addSubview(buttonMore)
+        buttonMore.snp.makeConstraints{ (make) in
+            make.width.equalTo(80)
+            make.height.equalTo(20)
+            make.leading.equalTo(commentwriterprofileImage.snp.trailing).offset(10)
+            make.top.equalTo(commentcontentLabel.snp.bottom).offset(10)
+        }*/
+        self.baseView.addSubview(buttonMore)
+        buttonMore.snp.makeConstraints{ (make) in
+            make.top.equalTo(commentcontentLabel.snp.bottom).offset(10)
+            make.leading.equalTo(commentwriterprofileImage.snp.trailing).offset(10)
+            make.width.height.equalTo(CGSize(width: 80, height: 20))
+        }
+        baseView.snp.makeConstraints{ (make) in
+            make.bottom.equalTo(self.buttonMore).offset(10)
+        }
+        
+        
+        
+        
+        /*
+        self.addSubview(repleshowButton)
+        repleshowButton.snp.makeConstraints{ (make) in
+            make.width.equalTo(80)
+            make.height.equalTo(20)
+            make.leading.equalTo(commentwriterprofileImage.snp.trailing).offset(10)
+            make.top.equalTo(buttonMore.snp.bottom)
+        }
+        */
+        
+        
+        /*self.contentView.addSubview(likeButton)
+        likeButton.snp.makeConstraints{ (make) in
+            make.leading.equalTo(commentwriterprofileImage.snp.trailing).offset(10)
+            make.top.equalTo(buttonMore.snp.bottom).offset(40)
+        }*/
+        self.contentView.addSubview(likeButton)
+        likeButton.snp.makeConstraints{ (make) in
+            make.top.equalTo(buttonMore.snp.bottom).offset(10)
+            make.leading.equalTo(commentwriterprofileImage.snp.trailing).offset(10)
+        }
+        
+        
+        
+    }
+    
+    
+    @objc func buttonMoreTapped(_ sender: Any) {
+        if sender is UIButton {
+            isExpanded = !isExpanded
+            //commentcontentLabel.numberOfLines = isExpanded ? 0 : 2
+            buttonMore.setTitle(isExpanded ? "간략히 보기.." : "더보기..", for: .normal)
+            
+            self.isShowMoreText.toggle()
+        }
+        print(commentcontentLabel.numberOfLines)
+        print(commentcontentLabel.text?.count as Any)
+    }
+    
+    
+    
+    func shouldShowMoreText() {
+        var height: CGFloat = 0
+        height = isShowMoreText ? 130 : 100
+        self.labelHeightConstraint?.isActive = false
+        
+        self.commentcontentLabel.snp.makeConstraints({ [unowned self] in
+            self.labelHeightConstraint = $0.height.equalTo(height).constraint
+        })
+        
+        self.labelHeightConstraint?.activate()
+        self.layoutIfNeeded()
+        self.delegate?.testCell(self, shouldChange: height)
+    }
+}
